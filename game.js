@@ -4,6 +4,9 @@ var wordsArray = ["Hello Nate", "Shut up Nate"];
 
 var answer;
 var correctGuesses = [];
+var alreadyGuessed = [];
+var unfinishedWord = [];
+var tries = 10;
 
 pickWord();
 
@@ -17,14 +20,16 @@ function pickWord() {
 
 function getUnfWord() {
 
-    var unfinishedWord = [];
+    unfinishedWord = [];
 
     for (let i = 0; i < answer.length; i++) {
+
         if (answer[i] === " ") {
             unfinishedWord.push(" ");
         } else {
             unfinishedWord.push("_");
         }
+
     }
     console.log(unfinishedWord.join(" "));
 
@@ -39,12 +44,38 @@ function getKey() {
             message: 'Guess a letter in the word?'
         }
     ]).then(function (data) {
-        if (!correctGuesses.includes(data.key)){
 
+        var key = data.key[0];
+
+        if (!alreadyGuessed.includes(key)) {
+            alreadyGuessed.push(key);
+
+            if (answer.toLowerCase().includes(key.toLowerCase())) {
+                correctGuesses.push(key.toLowerCase());
+                fillInBlanks(key);
+            } else {
+                tries = tries -1;
+                console.log("Sorry, Wrong Answer\n" + unfinishedWord.join(" "));
+                getKey();
+            }
+
+        } else {
+            console.log("You have already guessed that!\n" + unfinishedWord.join(" "));
+            getKey();
         }
-         else if (answer.toLowerCase().includes(data.key.toLowerCase())) {
-            correctGuesses.push(data.key)
-        }       
 
     });
+}
+
+function fillInBlanks(key) {
+
+    for (let i = 0; i < answer.length; i++) {
+        if (answer[i] === " ") {
+            unfinishedWord.push(" ");
+        } else if (key.toLowerCase() === answer[i].toLowerCase()) {
+            unfinishedWord.splice(i, 1, key);
+        }
+    }
+    console.log(unfinishedWord.join(" "));
+    getKey();
 }
